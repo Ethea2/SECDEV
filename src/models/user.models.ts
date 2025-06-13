@@ -1,0 +1,55 @@
+import { IUser } from "@/types/user.types";
+import { Model, Schema, model, models } from "mongoose"
+import bcrypt from "bcrypt"
+
+
+interface UserModel extends Model<IUser> {
+  register(username: string, email: string, password: string, display_name: string): Promise<IUser>
+}
+
+const userSchema = new Schema<IUser, UserModel>({
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    maxlength: 30
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    maxlength: 320
+  },
+  password: {
+    type: String,
+    required: true,
+    maxlength: 255
+  },
+  display_name: {
+    type: String,
+    required: true,
+    maxlength: 30
+  },
+  last_login: {
+    type: Date,
+    default: null
+  }
+}, { timestamps: true })
+
+userSchema.static(
+  "register",
+  async function register(username: string, email: string, password: string, display_name: string) {
+    // TODO: Add security validations!
+    const salt = await bcrypt.genSalt(12)
+
+    const hash = await bcrypt.hash(password, salt)
+
+    const user = await this.create({ username, email, password: hash, display_name })
+
+    return user
+  }
+)
+
+const User = model<IUser, UserModel>("User", userSchema)
+
+export default User
