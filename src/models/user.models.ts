@@ -5,6 +5,7 @@ import bcrypt from "bcrypt"
 
 interface UserModel extends Model<IUser> {
   register(username: string, email: string, password: string, display_name: string): Promise<IUser>
+  login(username: string, password: string): Promise<IUser>
 }
 
 const userSchema = new Schema<IUser, UserModel>({
@@ -46,6 +47,17 @@ userSchema.static(
 
     const user = await this.create({ username, email, password: hash, display_name })
 
+    
+    return user
+  }
+)
+
+userSchema.static(
+  "login",
+  async function login(username: string, password: string){
+    const user = await this.findOne({username})
+
+    console.log(user)
     return user
   }
 )
