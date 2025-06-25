@@ -47,6 +47,24 @@ const useLogin = () => {
       })
       router.push("/dashboard");
     }
+<<<<<<< switch-to-nextauth
+=======
+
+    setLoading(false)
+    toast.update(toastID.current, {
+      render: "Successfully logged in!",
+      isLoading: false,
+      type: "success",
+      autoClose: 5000,
+    })
+
+    const d = new Date();
+    d.setTime(d.getTime() + (0.1*24*60*60*1000))
+    let expires = "expires="+d.toUTCString();
+    document.cookie = "username=" + username + ";" + expires +";path=/dashboard"
+    
+    router.push("/dashboard")
+>>>>>>> feature/login
   }
 
   return { login, loading }
