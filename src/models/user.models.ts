@@ -75,6 +75,6 @@ userSchema.static(
   }
 )
 
-const User = model<IUser, UserModel>("User", userSchema)
+const User = models.User || model<IUser, UserModel>("User", userSchema)
 
 export default User

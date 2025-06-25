@@ -1,6 +1,7 @@
 import { useRouter } from "next/navigation"
 import { useRef, useState } from "react"
 import { Id, toast } from "react-toastify"
+import { signIn } from "next-auth/react";
 
 const useLogin = () => {
   const [loading, setLoading] = useState(false)
@@ -10,8 +11,6 @@ const useLogin = () => {
   const login = async (username: string, password: string) => {
     toastID.current = toast.loading("Logging in")
     setLoading(true)
-    // srsly just wanted to see if it's cool or nah (erase this on final submission)
-    await new Promise(resolve => setTimeout(resolve, 2000))
 
     if (username === ""  || password === "") {
       setLoading(false)
@@ -24,34 +23,30 @@ const useLogin = () => {
       return
     }
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ username, password}),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-
-    const json = await res.json()
-    if (!res.ok) {
+    const res = await signIn('credentials', {
+      redirect: false,
+      username,
+      password,
+    });
+    if (res?.error) {
+      toast.update(toastID.current, {
+        render: "Uh-oh! Something went wrong.",
+        isLoading: false,
+        autoClose: 5000,
+        type: "error"
+      })
+      setLoading(false)
+      return
+    } else {
       setLoading(false)
       toast.update(toastID.current, {
-        render: json.message,
+        render: "Successfully logged in!",
         isLoading: false,
-        type: "error",
+        type: "success",
         autoClose: 5000,
       })
-      return
+      router.push("/dashboard");
     }
-
-    setLoading(false)
-    toast.update(toastID.current, {
-      render: "Successfully logged in!",
-      isLoading: false,
-      type: "success",
-      autoClose: 5000,
-    })
-    router.push("/dashboard")
   }
 
   return { login, loading }
