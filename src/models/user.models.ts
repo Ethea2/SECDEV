@@ -1,6 +1,8 @@
 import { IUser } from "@/types/user.types";
 import { Model, Schema, model, models } from "mongoose"
 import bcrypt from "bcrypt"
+import { json } from "stream/consumers";
+import { error } from "console";
 
 
 interface UserModel extends Model<IUser> {
@@ -55,10 +57,21 @@ userSchema.static(
 userSchema.static(
   "login",
   async function login(username: string, password: string){
-    const user = await this.findOne({username})
+    //const userLowerCase = username.toLowerCase()
+    let user = await this.findOne({username : username})//replace username with userLowerCase
+    if (user == null){
+      user = await this.findOne({email : username})//replace username with userLowerCase
+    }
 
-    console.log(user)
-    return user
+    if (user != null){
+      const isMatch = await bcrypt.compare(password, user.password)
+      if (isMatch){
+        return user
+      }
+    }
+
+    throw new Error("Invalid username/email or password")
+
   }
 )
 

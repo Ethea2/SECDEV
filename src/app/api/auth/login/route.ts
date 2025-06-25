@@ -12,6 +12,6 @@ export const POST = async (request: Request) => {
     return NextResponse.json({ message: "Successfully logged in!", user }, { status: 200 })
   } catch (e) {
     const err = e as Error
-    return NextResponse.json({ message: err.message }, { status: 500 })
+    return NextResponse.json({ message: err.message }, { status: 401 })
   }
 }
