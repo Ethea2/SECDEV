@@ -8,3 +8,9 @@ export interface IUser {
   createdAt?: Date
   updatedAt?: Date
 }
+export interface JWTUser {
+  id: string
+  username: string
+  display_name: string
+  email: string
+}
