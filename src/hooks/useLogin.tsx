@@ -51,6 +51,12 @@ const useLogin = () => {
       type: "success",
       autoClose: 5000,
     })
+
+    const d = new Date();
+    d.setTime(d.getTime() + (0.1*24*60*60*1000))
+    let expires = "expires="+d.toUTCString();
+    document.cookie = "username=" + username + ";" + expires +";path=/dashboard"
+    
     router.push("/dashboard")
   }
 

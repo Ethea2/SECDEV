@@ -5,13 +5,17 @@ import React, {
   SetStateAction,
   useState,
   DragEvent,
-  FormEvent,
+  FormEvent
 } from "react";
 import { FiPlus, FiTrash } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { FaFire } from "react-icons/fa";
+import useDashboard from "@/hooks/useDashboard"
+
 
 const Dashboard = () => {
+  useDashboard()
+
   return (
     <div className="h-screen w-full bg-neutral-900 text-neutral-50">
       <Board />
