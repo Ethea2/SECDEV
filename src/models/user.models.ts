@@ -1,9 +1,6 @@
 import { IUser } from "@/types/user.types";
 import { Model, Schema, model, models } from "mongoose"
 import bcrypt from "bcrypt"
-import { json } from "stream/consumers";
-import { error } from "console";
-
 
 interface UserModel extends Model<IUser> {
   register(username: string, email: string, password: string, display_name: string): Promise<IUser>
@@ -42,30 +39,41 @@ const userSchema = new Schema<IUser, UserModel>({
 userSchema.static(
   "register",
   async function register(username: string, email: string, password: string, display_name: string) {
-    // TODO: Add security validations!
-    const salt = await bcrypt.genSalt(12)
+    const existingUser = await this.findOne({
+      $or: [
+        { username: { $regex: new RegExp(`^${username}$`, 'i') } },
+        { email: { $regex: new RegExp(`^${email}$`, 'i') } }
+      ]
+    });
 
-    const hash = await bcrypt.hash(password, salt)
+    if (existingUser) {
+      if (existingUser.username.toLowerCase() === username.toLowerCase()) {
+        throw new Error('Username already exists');
+      }
+      if (existingUser.email.toLowerCase() === email.toLowerCase()) {
+        throw new Error('An account with this email already exists');
+      }
+    }
 
-    const user = await this.create({ username, email, password: hash, display_name })
-
-    
-    return user
+    const salt = await bcrypt.genSalt(12);
+    const hash = await bcrypt.hash(password, salt);
+    const user = await this.create({ username, email, password: hash, display_name });
+    return user;
   }
 )
 
 userSchema.static(
   "login",
-  async function login(username: string, password: string){
+  async function login(username: string, password: string) {
     const userLowerCase = username.toLowerCase()
-    let user = await this.findOne({username : userLowerCase})//replace username with userLowerCase
-    if (user == null){
-      user = await this.findOne({email : userLowerCase})//replace username with userLowerCase
+    let user = await this.findOne({ username: userLowerCase })//replace username with userLowerCase
+    if (user == null) {
+      user = await this.findOne({ email: userLowerCase })//replace username with userLowerCase
     }
 
-    if (user != null){
+    if (user != null) {
       const isMatch = await bcrypt.compare(password, user.password)
-      if (isMatch){
+      if (isMatch) {
         return user
       }
     }

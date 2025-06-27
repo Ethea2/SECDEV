@@ -5,7 +5,7 @@ import React, {
   SetStateAction,
   useState,
   DragEvent,
-  FormEvent
+  FormEvent,
 } from "react";
 import { FiPlus, FiTrash } from "react-icons/fi";
 import { motion } from "framer-motion";

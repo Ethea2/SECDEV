@@ -11,7 +11,7 @@ const useRegister = () => {
     toastID.current = toast.loading("Registering new user...")
     setLoading(true)
     // srsly just wanted to see if it's cool or nah (erase this on final submission)
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    // await new Promise(resolve => setTimeout(resolve, 2000))
 
     if (confirm !== password) {
       setLoading(false)
@@ -24,16 +24,16 @@ const useRegister = () => {
       return
     }
 
-    if (username === "" || email === "" || password === "" || confirm === "" || displayName === "") {
-      setLoading(false)
-      toast.update(toastID.current, {
-        render: "Please complete the form!",
-        isLoading: false,
-        autoClose: 5000,
-        type: "error"
-      })
-      return
-    }
+    // if (username === "" || email === "" || password === "" || confirm === "" || displayName === "") {
+    //   setLoading(false)
+    //   toast.update(toastID.current, {
+    //     render: "Please complete the form!",
+    //     isLoading: false,
+    //     autoClose: 5000,
+    //     type: "error"
+    //   })
+    //   return
+    // }
 
     const res = await fetch("/api/auth/register", {
       method: "POST",

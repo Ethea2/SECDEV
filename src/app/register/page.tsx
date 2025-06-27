@@ -10,10 +10,9 @@ const Register = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirm, setConfirm] = useState("")
-  const [displayName, setDisplayName] = useState("")
 
   const submitRegister = async () => {
-    await register(username, email, password, confirm, displayName)
+    await register(username, email, password, confirm, username)
   }
 
   return (
@@ -49,10 +48,6 @@ const Register = () => {
         <InputContainer>
           <p className="font-bold">Confirm Password</p>
           <input type="password" onChange={(e) => setConfirm(e.target.value)} value={confirm} className="bg-neutral-500/20 border-neutral-500 border-2 rounded-lg" />
-        </InputContainer>
-        <InputContainer>
-          <p className="font-bold">Display Name</p>
-          <input onChange={(e) => setDisplayName(e.target.value)} value={displayName} className="bg-neutral-500/20 border-neutral-500 border-2 rounded-lg" />
         </InputContainer>
         <div className="group relative w-fit transition-transform duration-300 active:scale-95 mt-5">
           <button className="relative z-10 rounded-lg bg-gradient-to-br from-indigo-500 to-fuchsia-500 p-0.5 duration-300 group-hover:scale-110" onClick={() => {
