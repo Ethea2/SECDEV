@@ -1,103 +1,83 @@
-import Image from "next/image";
+"use client"
+import Loader from "@/components/Loader"
+import useLogin from "@/hooks/useLogin"
+import useRegister from "@/hooks/useRegister"
+import { useSession } from "next-auth/react"
+import Link from "next/link"
+import { redirect } from "next/navigation"
+import { useEffect, useState } from "react"
 
-export default function Home() {
+const Login = () => {
+  const { login, loading } = useLogin()
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const { data, status } = useSession()
+
+  const submitLogin = async () => {
+    await login(username, password)
+  }
+
+  useEffect(() => {
+    if (status !== "loading") {
+      if (data) {
+        redirect("/dashboard");
+      }
+    }
+  }, [data, status])
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className={`flex justify-center items-center w-full h-screen bg-neutral-900`}>
+      <div
+        className="flex justify-center items-center w-full h-full absolute transition-opacity duration-300"
+        style={{
+          opacity: loading ? 1 : 0,
+          zIndex: loading ? 10 : -10,
+          pointerEvents: loading ? 'auto' : 'none',
+        }}
+      >
+        <Loader />
+      </div>
+      <div className="flex flex-col justify-center items-center bg-neutral-500/20 p-5 border-neutral-500 border-2 gap-3"
+        style={{ filter: loading ? 'blur(20px)' : 'none' }}
+      >
+        <div className="flex justify-center items-center w-full text-blue-200 text-2xl font-bold m-5">
+          Log in
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <InputContainer>
+          <p className="font-bold">Username or Email</p>
+          <input onChange={(e) => setUsername(e.target.value)} value={username} className="bg-neutral-500/20 border-neutral-500 border-2 rounded-lg" />
+        </InputContainer>
+        <InputContainer>
+          <p className="font-bold">Password</p>
+          <input type="password" onChange={(e) => setPassword(e.target.value)} value={password} className="bg-neutral-500/20 border-neutral-500 border-2 rounded-lg" />
+        </InputContainer>
+        <div className="group relative w-fit transition-transform duration-300 active:scale-95 mt-5">
+          <button className="relative z-10 rounded-lg bg-gradient-to-br from-indigo-500 to-fuchsia-500 p-0.5 duration-300 group-hover:scale-110" onClick={() => {
+            submitLogin()
+          }}>
+            <span className="block rounded-md bg-slate-950 px-4 py-2 font-semibold text-slate-100 duration-300 group-hover:bg-slate-950/50 group-hover:text-slate-50 group-active:bg-slate-950/80">
+              Login
+            </span>
+          </button>
+          <span className="pointer-events-none absolute -inset-4 z-0 transform-gpu rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 opacity-30 blur-xl transition-all duration-300 group-hover:opacity-90 group-active:opacity-50" />
+        </div>
+        <div className="mt-3 text-sm text-neutral-400">
+          No account?{" "}
+          <Link href="/register" className="text-purple-400 hover:text-purple-300 cursor-pointer transition-colors duration-200">
+            Register here!
+          </Link>
+        </div>
+      </div>
     </div>
-  );
+  )
 }
+
+const InputContainer = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="flex justify-between items-center gap-2 w-full">
+      {children}
+    </div>
+  )
+}
+
+export default Login

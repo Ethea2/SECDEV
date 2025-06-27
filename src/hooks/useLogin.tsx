@@ -12,7 +12,7 @@ const useLogin = () => {
     toastID.current = toast.loading("Logging in")
     setLoading(true)
 
-    if (username === ""  || password === "") {
+    if (username === "" || password === "") {
       setLoading(false)
       toast.update(toastID.current, {
         render: "Please complete the form!",
@@ -46,7 +46,7 @@ const useLogin = () => {
       type: "success",
       autoClose: 5000,
     })
-    
+
     router.push("/dashboard")
   }
 

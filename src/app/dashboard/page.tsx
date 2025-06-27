@@ -6,13 +6,24 @@ import React, {
   useState,
   DragEvent,
   FormEvent,
+  useEffect,
 } from "react";
 import { FiPlus, FiTrash } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { FaFire } from "react-icons/fa";
-import { useSession, signOut } from "next-auth/react";
+import { redirect } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const Dashboard = () => {
+  const { data, status } = useSession()
+
+  useEffect(() => {
+    if (status !== "loading") {
+      if (!data) {
+        redirect("/"); // protect all pages in dashboard
+      }
+    }
+  }, [data, status])
 
   return (
     <Board />
@@ -23,7 +34,7 @@ const Board = () => {
   const [cards, setCards] = useState(DEFAULT_CARDS);
 
   return (
-    <div className="flex h-full w-full gap-3 overflow-scroll p-12">
+    <div className="flex h-full w-full gap-3 overflow-scroll p-12 mt-20">
       <Column
         title="Backlog"
         column="backlog"

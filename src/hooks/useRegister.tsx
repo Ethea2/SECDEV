@@ -62,7 +62,7 @@ const useRegister = () => {
       type: "success",
       autoClose: 5000,
     })
-    router.push("/login")
+    router.push("/")
   }
 
   return { register, loading }

@@ -1,8 +1,10 @@
 "use client"
-
 import Loader from "@/components/Loader"
 import useRegister from "@/hooks/useRegister"
-import { useState } from "react"
+import { useSession } from "next-auth/react"
+import Link from "next/link"
+import { redirect } from "next/navigation"
+import { useEffect, useState } from "react"
 
 const Register = () => {
   const { register, loading } = useRegister()
@@ -10,11 +12,19 @@ const Register = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirm, setConfirm] = useState("")
+  const { data, status } = useSession()
+
+  useEffect(() => {
+    if (status !== "loading") {
+      if (data) {
+        redirect("/dashboard");
+      }
+    }
+  }, [data, status])
 
   const submitRegister = async () => {
     await register(username, email, password, confirm, username)
   }
-
   return (
     <div className={`flex justify-center items-center w-full h-screen bg-neutral-900`}>
       <div
@@ -58,6 +68,12 @@ const Register = () => {
             </span>
           </button>
           <span className="pointer-events-none absolute -inset-4 z-0 transform-gpu rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 opacity-30 blur-xl transition-all duration-300 group-hover:opacity-90 group-active:opacity-50" />
+        </div>
+        <div className="mt-3 text-sm text-neutral-400">
+          Already have an account?{" "}
+          <Link href="/" className="text-purple-400 hover:text-purple-300 cursor-pointer transition-colors duration-200">
+            Log in here!
+          </Link>
         </div>
       </div>
     </div>
