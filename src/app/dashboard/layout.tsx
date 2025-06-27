@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react";
+import React, {useEffect} from "react";
 import { useSession, signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
 
@@ -11,12 +11,16 @@ export default function DashboardLayout({
     children: React.ReactNode
   }) {
     
-    const { data } = useSession()
-    if (!data || !data.user) {
-        redirect("/login"); // protect all pages in dashboard
-    }
-    
+    const { data, status} = useSession()
 
+    useEffect(()=> {
+        if(status !== "loading"){
+            if (!data) {
+                redirect("/login"); // protect all pages in dashboard
+            }
+        }
+        console.log(data);
+    }, [data, status])
     return <section>
         <div className="h-screen w-full bg-neutral-900 text-neutral-50">
             <header className="flex items-center justify-between px-8 py-4 bg-neutral-800 shadow">

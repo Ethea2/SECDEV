@@ -10,15 +10,9 @@ import React, {
 import { FiPlus, FiTrash } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { FaFire } from "react-icons/fa";
-<<<<<<< switch-to-nextauth
 import { useSession, signOut } from "next-auth/react";
-=======
-import useDashboard from "@/hooks/useDashboard"
-
->>>>>>> feature/login
 
 const Dashboard = () => {
-  useDashboard()
 
   return (
     <Board />

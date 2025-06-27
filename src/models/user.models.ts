@@ -57,10 +57,10 @@ userSchema.static(
 userSchema.static(
   "login",
   async function login(username: string, password: string){
-    //const userLowerCase = username.toLowerCase()
-    let user = await this.findOne({username : username})//replace username with userLowerCase
+    const userLowerCase = username.toLowerCase()
+    let user = await this.findOne({username : userLowerCase})//replace username with userLowerCase
     if (user == null){
-      user = await this.findOne({email : username})//replace username with userLowerCase
+      user = await this.findOne({email : userLowerCase})//replace username with userLowerCase
     }
 
     if (user != null){
