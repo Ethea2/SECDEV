@@ -30,6 +30,12 @@ const userSchema = new Schema<IUser, UserModel>({
     required: true,
     maxlength: 30
   },
+  role: {
+    type: String,
+    enum: ["admin", "manager", "user"],
+    default: "user",
+    required: true
+  },
   last_login: {
     type: Date,
     default: null
@@ -57,7 +63,8 @@ userSchema.static(
 
     const salt = await bcrypt.genSalt(12);
     const hash = await bcrypt.hash(password, salt);
-    const user = await this.create({ username, email, password: hash, display_name });
+    const user = await this.create({ username, email, password: hash, display_name, role: "user"}); // hard coded role user
+
     return user;
   }
 )
