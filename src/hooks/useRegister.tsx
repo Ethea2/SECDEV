@@ -4,7 +4,7 @@ import { Id, toast } from "react-toastify"
 
 const useRegister = () => {
   const [loading, setLoading] = useState(false)
-  const toastID = useRef<Id>(null)
+  const toastID = useRef<Id>(null) 
   const router = useRouter()
 
   const register = async (username: string, email: string, password: string, confirm: string, displayName: string) => {
@@ -62,7 +62,7 @@ const useRegister = () => {
       type: "success",
       autoClose: 5000,
     })
-    router.push("/")
+    router.push("/dashboard")
   }
 
   return { register, loading }
