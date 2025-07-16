@@ -1,4 +1,4 @@
-import { IUser } from "@/types/user.types";
+import { IUser, UserRole } from "@/types/user.types";
 import { Model, Schema, model, models } from "mongoose"
 import bcrypt from "bcrypt"
 
@@ -33,6 +33,12 @@ const userSchema = new Schema<IUser, UserModel>({
   last_login: {
     type: Date,
     default: null
+  },
+  roles: {
+    type: [String],
+    default: [UserRole.USER],
+    enum: Object.values(UserRole),
+    required: true
   }
 }, { timestamps: true })
 
@@ -74,6 +80,9 @@ userSchema.static(
     if (user != null) {
       const isMatch = await bcrypt.compare(password, user.password)
       if (isMatch) {
+        user.last_login = new Date()
+        await user.save()
+
         return user
       }
     }
