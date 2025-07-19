@@ -7,6 +7,7 @@ interface UserModel extends Model<IUser> {
   login(username: string, password: string): Promise<IUser>
   getUsers(): Promise<IUser>
   patchUser(username: string, newUsername: string, email: string, password: string, displayName: string, role: string): Promise<IUser>
+  deleteUser(identifier: string): Promise<IUser>
 }
 
 const userSchema = new Schema<IUser, UserModel>({

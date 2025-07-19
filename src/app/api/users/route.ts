@@ -26,7 +26,7 @@ export const PATCH = async (request: Request) => {
   try {
     connectDatabase();
 
-    const { username, newUsername, email, password, display_name, role} = await request.json();
+    const { username, newUsername, email, password, display_name, role } = await request.json();
     const patchUser = await User.patchUser(username, newUsername, email, password, display_name, role);
 
     return NextResponse.json({
@@ -38,6 +38,22 @@ export const PATCH = async (request: Request) => {
 
     return NextResponse.json({
       message: "An error occurred whilst fetchin users"
+    }, { status: 500 });
+  }
+};
+
+export const DELETE = async (request: Request) => {
+  try {
+    connectDatabase();
+    const { username } = await request.json();
+    const deletedUser = await User.findOneAndDelete({ username });
+    return NextResponse.json({
+      message: "Successfully deleted user",
+      user: deletedUser
+    }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({
+      message: "An error occurred while deleting user"
     }, { status: 500 });
   }
 };
