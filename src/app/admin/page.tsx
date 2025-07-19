@@ -10,9 +10,9 @@ import AdminHeader from "@/components/AdminHeader";
 
 export default function AdminDashboardPage() {
   const { data: session } = useSession();
-  //if (!session || session.user.role !== "user") {
-  //  return redirect("/unauthorized");
-  //}
+  if (!session || !session.user.roles.includes("admin")) {
+    return redirect("/unauthorized");
+  }
 
   const [userList, setUserList] = useState<IUser[]>([]);
 

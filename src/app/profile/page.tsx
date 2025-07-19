@@ -6,7 +6,7 @@ export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
   if (!session) return redirect("/unauthorized");
 
-  const { username, email, display_name, role } = session.user;
+  const { username, email, display_name, roles } = session.user;
 
   return (
     <main className="p-6">
@@ -15,7 +15,7 @@ export default async function ProfilePage() {
         <p><strong>Username:</strong> {username}</p>
         <p><strong>Email:</strong> {email}</p>
         <p><strong>Display Name:</strong> {display_name}</p>
-        <p><strong>Role:</strong> {role}</p>
+        <p><strong>Role:</strong> {roles}</p>
       </div>
       {/* Optional: Add a form for editing display name/password */}
     </main>

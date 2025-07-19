@@ -3,6 +3,7 @@
 import AdminHeader from "@/components/AdminHeader";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
+import { redirect } from 'next/navigation'
 
 const PERMISSIONS = [
   { key: "view_users", name: "View Users", description: "Can view user list" },
@@ -27,6 +28,9 @@ const initialRolePermissions: RolePermissions = {
 export default function PermissionsPage() {
   const { data: session } = useSession();
   const [rolePermissions, setRolePermissions] = useState<RolePermissions>(initialRolePermissions);
+  if (!session || !session.user.roles.includes("admin")) {
+    return redirect("/unauthorized");
+  }
 
   const handleCheck = (role: Role, permKey: string) => {
     setRolePermissions(prev => {

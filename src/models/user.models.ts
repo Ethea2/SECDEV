@@ -123,7 +123,12 @@ userSchema.static(
     if (email != null) newUser.email = email
     if (password != null) newUser.password = password
     if (displayName != null) newUser.displayName = displayName
-    if (role != null) newUser.role = role
+    if (role != null){
+      newUser.role = role
+      newUser.roles = []
+      newUser.roles.push(role)
+    } 
+    
   
     let user = await this.findOneAndUpdate({username: username.toLowerCase()}, newUser, {new : true})
     if (user != null) {

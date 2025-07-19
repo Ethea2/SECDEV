@@ -21,5 +21,5 @@ export interface JWTUser {
 export enum UserRole {
   USER = "user",
   MANAGER = "manager",
-  ADMIN = "ADMIN"
+  ADMIN = "admin"
 }
