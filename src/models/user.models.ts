@@ -5,6 +5,8 @@ import bcrypt from "bcrypt"
 interface UserModel extends Model<IUser> {
   register(username: string, email: string, password: string, display_name: string): Promise<IUser>
   login(username: string, password: string): Promise<IUser>
+  getUsers(): Promise<IUser>
+  patchUser(username: string, newUsername: string, email: string, password: string, displayName: string, role: string): Promise<IUser>
 }
 
 const userSchema = new Schema<IUser, UserModel>({
@@ -29,6 +31,12 @@ const userSchema = new Schema<IUser, UserModel>({
     type: String,
     required: true,
     maxlength: 30
+  },
+  role: {
+    type: String,
+    enum: ["admin", "manager", "user"],
+    default: "user",
+    required: true
   },
   last_login: {
     type: Date,
@@ -63,7 +71,8 @@ userSchema.static(
 
     const salt = await bcrypt.genSalt(12);
     const hash = await bcrypt.hash(password, salt);
-    const user = await this.create({ username, email, password: hash, display_name });
+    const user = await this.create({ username, email, password: hash, display_name, role: "user"}); // hard coded role user
+
     return user;
   }
 )
@@ -88,6 +97,39 @@ userSchema.static(
     }
 
     throw new Error("Invalid username/email or password")
+
+  }
+)
+
+userSchema.static(
+  "getUsers",
+  async function getUsers() {
+    let user = await this.find({})
+    if (user != null) {
+      return user
+    }
+    throw new Error("No users found")
+  }
+)
+
+userSchema.static(
+  "patchUser",
+  async function patchUser(username: string, newUsername: string, email: string, password: string, displayName: string, role: string) {
+
+
+    let newUser: { [key: string]: any } = {};
+    if (newUsername != null) newUser.username = newUsername
+    if (email != null) newUser.email = email
+    if (password != null) newUser.password = password
+    if (displayName != null) newUser.displayName = displayName
+    if (role != null) newUser.role = role
+  
+    let user = await this.findOneAndUpdate({username: username.toLowerCase()}, newUser, {new : true})
+    if (user != null) {
+      return user
+    }
+    throw new Error("No user found")
+    
 
   }
 )

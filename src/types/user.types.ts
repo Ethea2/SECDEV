@@ -4,6 +4,7 @@ export interface IUser {
   display_name: string
   email: string
   password: string
+  role: "admin" | "manager" | "user"
   last_login: Date | null
   roles: string[]
   createdAt?: Date
