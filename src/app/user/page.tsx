@@ -15,8 +15,8 @@ const User = () => {
 
   useEffect(() => {
     if (status !== "loading") {
-      if (data) {
-        redirect("/dashboard");
+      if (!data) {
+        redirect("/");
       }
     }
   }, [data, status])

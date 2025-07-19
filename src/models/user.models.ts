@@ -6,7 +6,8 @@ interface UserModel extends Model<IUser> {
   register(username: string, email: string, password: string, display_name: string): Promise<IUser>
   login(username: string, password: string): Promise<IUser>
   getUsers(): Promise<IUser>
-  patchUser(username: string, newUsername: string, email: string, password: string, displayName: string, role: string): Promise<IUser>
+  getUserById(userId: string): Promise<IUser>
+  editUser(userId: string, newUsername?: string, displayName?: string, newEmail?: string): Promise<IUser>
   deleteUser(identifier: string): Promise<IUser>
 }
 
@@ -60,7 +61,6 @@ userSchema.static(
         { email: { $regex: new RegExp(`^${email}$`, 'i') } }
       ]
     });
-
     if (existingUser) {
       if (existingUser.username.toLowerCase() === username.toLowerCase()) {
         throw new Error('Username already exists');
@@ -69,11 +69,9 @@ userSchema.static(
         throw new Error('An account with this email already exists');
       }
     }
-
     const salt = await bcrypt.genSalt(12);
     const hash = await bcrypt.hash(password, salt);
-    const user = await this.create({ username, email, password: hash, display_name, role: "user"}); // hard coded role user
-
+    const user = await this.create({ username, email, password: hash, display_name, role: "user" }); // hard coded role user
     return user;
   }
 )
@@ -86,19 +84,15 @@ userSchema.static(
     if (user == null) {
       user = await this.findOne({ email: userLowerCase })//replace username with userLowerCase
     }
-
     if (user != null) {
       const isMatch = await bcrypt.compare(password, user.password)
       if (isMatch) {
         user.last_login = new Date()
         await user.save()
-
         return user
       }
     }
-
     throw new Error("Invalid username/email or password")
-
   }
 )
 
@@ -114,29 +108,64 @@ userSchema.static(
 )
 
 userSchema.static(
-  "patchUser",
-  async function patchUser(username: string, newUsername: string, email: string, password: string, displayName: string, role: string) {
+  "editUser",
+  async function editUser(userId: string, newUsername?: string, displayName?: string, newEmail?: string) {
+    let updateFields: { [key: string]: any } = {};
 
-
-    let newUser: { [key: string]: any } = {};
-    if (newUsername != null) newUser.username = newUsername
-    if (email != null) newUser.email = email
-    if (password != null) newUser.password = password
-    if (displayName != null) newUser.displayName = displayName
-    if (role != null){
-      newUser.role = role
-      newUser.roles = []
-      newUser.roles.push(role)
-    } 
-    
-  
-    let user = await this.findOneAndUpdate({username: username.toLowerCase()}, newUser, {new : true})
-    if (user != null) {
-      return user
+    if (newUsername != null && newUsername.trim() !== "") {
+      // Check if new username already exists (case-insensitive), excluding current user
+      const existingUser = await this.findOne({
+        username: { $regex: new RegExp(`^${newUsername}$`, 'i') },
+        _id: { $ne: userId } // Exclude current user by ID
+      });
+      if (existingUser) {
+        throw new Error('Username already exists');
+      }
+      updateFields.username = newUsername.toLowerCase();
     }
-    throw new Error("No user found")
-    
 
+    if (displayName != null && displayName.trim() !== "") {
+      updateFields.display_name = displayName;
+    }
+
+    if (newEmail != null && newEmail.trim() !== "") {
+      // Check if new email already exists (case-insensitive), excluding current user
+      const existingUser = await this.findOne({
+        email: { $regex: new RegExp(`^${newEmail}$`, 'i') },
+        _id: { $ne: userId } // Exclude current user by ID
+      });
+      if (existingUser) {
+        throw new Error('An account with this email already exists');
+      }
+      updateFields.email = newEmail.toLowerCase();
+    }
+
+    // Only proceed if there are fields to update
+    if (Object.keys(updateFields).length === 0) {
+      throw new Error("No valid fields provided for update");
+    }
+
+    const user = await this.findOneAndUpdate(
+      { _id: userId },
+      updateFields,
+      { new: true }
+    );
+
+    if (user != null) {
+      return user;
+    }
+    throw new Error("User not found");
+  }
+)
+
+userSchema.static(
+  "getUserById",
+  async function getUserById(userId: string) {
+    const user = await this.findById(userId).select('-password -createdAt -updatedAt');
+    if (user != null) {
+      return user;
+    }
+    throw new Error("User not found");
   }
 )
 

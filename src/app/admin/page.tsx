@@ -9,10 +9,7 @@ import Link from "next/link";
 import AdminHeader from "@/components/AdminHeader";
 
 export default function AdminDashboardPage() {
-  const { data: session } = useSession();
-  if (!session || !session.user.roles.includes("admin")) {
-    return redirect("/unauthorized");
-  }
+  const { data: session, status } = useSession();
 
   const [userList, setUserList] = useState<IUser[]>([]);
 
@@ -23,6 +20,13 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
+    if (status !== "loading")
+      if (!session || !session.user.roles.includes("admin")) {
+        return redirect("/unauthorized");
+      }
+  }, [session, status])
+
+  useEffect(() => {
     fetchUsers();
   }, []);
 
@@ -31,9 +35,9 @@ export default function AdminDashboardPage() {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username })
-      }).then(() => {
-        fetchUsers();
-      })
+    }).then(() => {
+      fetchUsers();
+    })
   };
 
   const patchUser = async (username: string, role: string) => {

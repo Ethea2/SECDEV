@@ -1,21 +1,57 @@
-"use client"
-import {useState, useRef, useEffect} from "react"
-import { Id, toast } from "react-toastify"
+import { useEffect, useState } from "react"
+import { toast } from "react-toastify"
 
+const useFetch = (url: string) => {
+  const [loading, setLoading] = useState(false)
+  const [data, setData] = useState<any>()
 
-const patchUser = async (username: string, newUsername: string, email: string, password: string, displayName: string, role: string) => {
+  const refetch = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(url)
+      const responseData = await res.json()
 
-    try{
-        await fetch("/api/users", {
-            method: "PATCH",
-            body: JSON.stringify({username, newUsername, email, password, displayName, role}),
-            headers: {
-                "Content-Type": "application/json"
-            }
+      if (!res.ok) {
+        console.log(responseData)
+        toast(responseData.message || "Something went wrong!", {
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          type: "error",
         })
-    } catch (e) {
-        console.log(e)
-    }    
+        setLoading(false)
+        return
+      }
+
+      setData(responseData)
+      setLoading(false)
+    } catch (error) {
+      console.error("Fetch error:", error)
+      toast("Network error occurred!", {
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        type: "error",
+      })
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (url) {
+      refetch()
+    }
+  }, [url])
+
+  return { loading, data, refetch }
 }
 
-export { patchUser }
+export default useFetch

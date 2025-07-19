@@ -21,7 +21,6 @@ export const authOptions: NextAuthOptions = {
           const password = credentials?.password || "";
 
           const user = await User.login(username, password);
-
           // Return as type JWTObject
           return {
             id: user._id?.toString() || "",
@@ -45,14 +44,17 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user }) {
-      token.id = user?.id || token.id;
-      token.username = user?.username || token.username;
-      token.display_name = user?.display_name || token.display_name;
-      token.email = user?.email || token.email;
-      token.roles = user?.roles || user.roles;
-      return token
+      if (user) {
+        token.id = user.id;
+        token.username = user.username;
+        token.display_name = user.display_name;
+        token.email = user.email;
+        token.roles = user.roles;
+      }
+      return token;
     },
     async session({ session, token, user }) {
+
       session.user = token as any;
       return session;
     },

@@ -13,10 +13,9 @@ import { motion } from "framer-motion";
 import { FaFire } from "react-icons/fa";
 import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { authOptions } from "@/libs/auth.libs";
 
 const Dashboard = () => {
-  const { data, status } = useSession(authOptions)
+  const { data, status } = useSession()
 
   useEffect(() => {
     if (status !== "loading") {
