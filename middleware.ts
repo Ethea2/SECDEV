@@ -38,7 +38,8 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
-  
+}
+
 export const config = {
   matcher: [
     "/admin/:path*",
@@ -46,4 +47,4 @@ export const config = {
     "/dashboard/:path*",
     "/profile/:path*"
   ],
-};
+}
