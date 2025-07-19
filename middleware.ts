@@ -38,12 +38,7 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
-
-  // Allow everything else
-  return NextResponse.next();
-}
-
-
+  
 export const config = {
   matcher: [
     "/admin/:path*",

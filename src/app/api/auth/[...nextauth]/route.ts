@@ -31,6 +31,7 @@ export const authOptions: NextAuthOptions = {
             username: user.username,
             display_name: user.display_name,
             email: user.email,
+            roles: user.roles
           }
         } catch (e) {
           console.error("Login failed:", e);
@@ -51,6 +52,7 @@ export const authOptions: NextAuthOptions = {
       token.username = user?.username || token.username;
       token.display_name = user?.display_name || token.display_name;
       token.email = user?.email || token.email;
+      token.roles = user?.roles || user.roles;
       return token
     },
     async session({ session, token, user }) {
