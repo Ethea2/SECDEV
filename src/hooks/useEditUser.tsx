@@ -2,7 +2,6 @@ import { useRef, useState } from "react"
 import { Id, toast } from "react-toastify"
 
 interface EditUserParams {
-  id: string;
   newUsername?: string;
   newEmail?: string;
   displayName?: string;
@@ -12,27 +11,11 @@ const useEditUser = () => {
   const [loading, setLoading] = useState(false)
   const toastID = useRef<Id>(null)
 
-  const editUser = async ({ id, newUsername, newEmail, displayName }: EditUserParams) => {
+  const editUser = async ({ newUsername, newEmail, displayName }: EditUserParams) => {
     toastID.current = toast.loading("Updating user...")
     setLoading(true)
 
-    if (!id || id.trim() === "") {
-      setLoading(false)
-      toast.update(toastID.current, {
-        render: "User ID is required!",
-        isLoading: false,
-        autoClose: 5000,
-        type: "error"
-      })
-      return
-    }
-
-    // Check if at least one field is provided for update
-    const hasUpdates = (newUsername && newUsername.trim() !== "") ||
-      (newEmail && newEmail.trim() !== "") ||
-      (displayName && displayName.trim() !== "")
-
-    if (!hasUpdates) {
+    if (!newUsername && !newEmail && !displayName) {
       setLoading(false)
       toast.update(toastID.current, {
         render: "At least one field must be provided for update!",
@@ -50,7 +33,6 @@ const useEditUser = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id,
           newUsername,
           newEmail,
           displayName

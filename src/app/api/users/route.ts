@@ -52,7 +52,9 @@ export const PUT = async (request: Request) => {
       return NextResponse.json({ message: "Authentication required" }, { status: 401 });
     }
 
-    const { id, newUsername, newEmail, displayName } = await request.json();
+    const { newUsername, newEmail, displayName } = await request.json();
+
+    const id = session.user.id;
 
     if (!id || typeof id !== 'string') {
       return NextResponse.json({ message: "User ID is required and must be a string." }, { status: 400 });
@@ -241,6 +243,11 @@ export const PATCH = async (request: Request) => {
       return NextResponse.json({ message: "Invalid role. Must be 'user', 'manager', or 'admin'." }, { status: 400 });
     }
 
+    // Admin can't change own role
+    if (session.user.username === username && role !== 'admin') {
+      return NextResponse.json({ message: "Cannot change your own admin role" }, { status: 400 });
+    }
+
     const updatedUser = await User.findOneAndUpdate(
       { username },
       { 
@@ -290,7 +297,17 @@ export const DELETE = async (request: Request) => {
     }
 
     const { username } = await request.json();
+    
+    if (!username || typeof username !== 'string') {
+      return NextResponse.json({ message: "Username is required and must be a string." }, { status: 400 });
+    }
+
     const deletedUser = await User.findOneAndDelete({ username });
+    
+    if (!deletedUser) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+    
     return NextResponse.json({
       message: "Successfully deleted user",
       user: deletedUser
