@@ -42,6 +42,7 @@ export const authOptions: NextAuthOptions = {
     signIn: '/'
   },
   session: { strategy: "jwt" },
+  // make cookies have generic name
   cookies: {
     sessionToken: {
       name: 'id',
@@ -53,7 +54,32 @@ export const authOptions: NextAuthOptions = {
         // maxAge: 30 * 24 * 60 * 60, // 30 days
         maxAge: 30 // 30 seconds for test
       }
-    }
+    },
+    callbackUrl: {
+      name: `callback-url`,
+      options: {
+      }
+    },
+    csrfToken: {
+      name: `csrf`,
+      options: {
+      }
+    },
+    pkceCodeVerifier: {
+      name: `code_verifier`,
+      options: {
+      }
+    },
+    state: {
+      name: `state`,
+      options: {
+      },
+    },
+    nonce: {
+      name: `nonce`,
+      options: {
+      },
+    },
   },
   callbacks: {
     async jwt({ token, user }) {
