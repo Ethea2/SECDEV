@@ -2,8 +2,8 @@
 
 import AdminHeader from "@/components/AdminHeader";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
-import { redirect } from 'next/navigation'
+import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation'
 
 const PERMISSIONS = [
   { key: "view_users", name: "View Users", description: "Can view user list" },
@@ -26,10 +26,29 @@ const initialRolePermissions: RolePermissions = {
 };
 
 export default function PermissionsPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
   const [rolePermissions, setRolePermissions] = useState<RolePermissions>(initialRolePermissions);
+  
+  useEffect(() => {
+    if (status === "loading") return; // Still loading
+    if (!session) {
+      router.push("/login");
+    }
+    if (!session || !session.user.roles.includes("admin")) {
+      router.push("/dashboard");
+    }
+  }, [session, status, router]);
+
+  // Show loading state while session is being fetched
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  // Don't render the main content if user is not authorized
   if (!session || !session.user.roles.includes("admin")) {
-    return redirect("/unauthorized");
+    return null;
   }
 
   const handleCheck = (role: Role, permKey: string) => {

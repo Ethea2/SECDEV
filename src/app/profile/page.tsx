@@ -43,7 +43,6 @@ export default function ProfilePage() {
     if (!sessionData?.user.id) return
 
     const result = await editUser({
-      id: sessionData.user.id,
       newUsername: username,
       newEmail: email,
       displayName: displayName
