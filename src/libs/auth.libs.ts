@@ -51,8 +51,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'strict',
         path: '/',
         secure: true,
-        // maxAge: 30 * 24 * 60 * 60, // 30 days
-        maxAge: 30 // 30 seconds for test
+        maxAge: 30 * 24 * 60 * 60, // 30 days
       }
     },
     callbackUrl: {

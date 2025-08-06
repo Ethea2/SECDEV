@@ -47,7 +47,7 @@ export const PUT = async (request: Request) => {
     connectDatabase();
 
     const session = await getServerSession(authOptions);
-    
+    console.log(session);
     if (!session?.user) {
       return NextResponse.json({ message: "Authentication required" }, { status: 401 });
     }
@@ -212,19 +212,78 @@ export const PUT = async (request: Request) => {
   }
 };
 
-export const DELETE = async (request: Request) => {
+export const PATCH = async (request: Request) => {
   try {
     connectDatabase();
 
-    // Get the current session
     const session = await getServerSession(authOptions);
-    
-    // Check if user is authenticated
     if (!session?.user) {
       return NextResponse.json({ message: "Authentication required" }, { status: 401 });
     }
 
-    // Authorization check: Only admins can delete users
+    const isAdmin = session.user.roles.includes('admin');
+    if (!isAdmin) {
+      return NextResponse.json({ message: "Access denied" }, { status: 403 });
+    }
+
+    const { username, role } = await request.json();
+
+    if (!username || typeof username !== 'string') {
+      return NextResponse.json({ message: "Username is required and must be a string." }, { status: 400 });
+    }
+
+    if (!role || typeof role !== 'string') {
+      return NextResponse.json({ message: "Role is required and must be a string." }, { status: 400 });
+    }
+
+    const validRoles = ['user', 'manager', 'admin'];
+    if (!validRoles.includes(role)) {
+      return NextResponse.json({ message: "Invalid role. Must be 'user', 'manager', or 'admin'." }, { status: 400 });
+    }
+
+    const updatedUser = await User.findOneAndUpdate(
+      { username },
+      { 
+        role: role,
+        roles: [role]
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      message: "User role successfully updated",
+      user: {
+        id: updatedUser._id,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        display_name: updatedUser.display_name,
+        role: updatedUser.role,
+        roles: updatedUser.roles
+      }
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error('User role update error:', error);
+    return NextResponse.json({
+      message: "An error occurred while updating user role"
+    }, { status: 500 });
+  }
+};
+
+export const DELETE = async (request: Request) => {
+  try {
+    connectDatabase();
+
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user) {
+      return NextResponse.json({ message: "Authentication required" }, { status: 401 });
+    }
+
     const isAdmin = session.user.roles.includes('admin');
     if (!isAdmin) {
       return NextResponse.json({ message: "Access denied. Only administrators can delete users." }, { status: 403 });
