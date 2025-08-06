@@ -16,6 +16,17 @@ export const GET = async (request: Request) => {
   try {
     connectDatabase();
 
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user) {
+      return NextResponse.json({ message: "Authentication required" }, { status: 401 });
+    }
+
+    const isAdmin = session.user.roles.includes('admin');
+    if (!isAdmin) {
+      return NextResponse.json({ message: "Access denied." }, { status: 403 });
+    }
+
     const userlist = await User.getUsers();
 
     return NextResponse.json({
@@ -34,15 +45,28 @@ export const GET = async (request: Request) => {
 export const PUT = async (request: Request) => {
   try {
     connectDatabase();
+
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user) {
+      return NextResponse.json({ message: "Authentication required" }, { status: 401 });
+    }
+
     const { id, newUsername, newEmail, displayName } = await request.json();
 
-    // Validate ID
     if (!id || typeof id !== 'string') {
       return NextResponse.json({ message: "User ID is required and must be a string." }, { status: 400 });
     }
 
     if (id.trim().length === 0) {
       return NextResponse.json({ message: "User ID cannot be empty." }, { status: 400 });
+    }
+
+    const isAdmin = session.user.roles.includes('admin');
+    const isOwnProfile = session.user.id === id;
+    
+    if (!isAdmin && !isOwnProfile) {
+      return NextResponse.json({ message: "Access denied" }, { status: 403 });
     }
 
     // Validate username if provided
@@ -191,6 +215,21 @@ export const PUT = async (request: Request) => {
 export const DELETE = async (request: Request) => {
   try {
     connectDatabase();
+
+    // Get the current session
+    const session = await getServerSession(authOptions);
+    
+    // Check if user is authenticated
+    if (!session?.user) {
+      return NextResponse.json({ message: "Authentication required" }, { status: 401 });
+    }
+
+    // Authorization check: Only admins can delete users
+    const isAdmin = session.user.roles.includes('admin');
+    if (!isAdmin) {
+      return NextResponse.json({ message: "Access denied. Only administrators can delete users." }, { status: 403 });
+    }
+
     const { username } = await request.json();
     const deletedUser = await User.findOneAndDelete({ username });
     return NextResponse.json({
